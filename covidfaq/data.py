@@ -35,7 +35,7 @@ class Dataset:
             for row in reader:
                 self.questions.append(row[0])
                 self.answers.append(row[1])
-        assert(len(questions) == len(answers))
+        assert(len(self.questions) == len(self.answers))
 
         #self.questions = self._read_questions()
         #self.answers = self._read_answers()
