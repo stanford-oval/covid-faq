@@ -18,6 +18,7 @@
 import os
 from typing import List
 from smart_open import open
+import csv
 
 class Dataset:
     datadir : str
@@ -26,9 +27,19 @@ class Dataset:
 
     def __init__(self, datadir):
         self.datadir = datadir
-        self.questions = self._read_questions()
-        self.answers = self._read_answers()
-        assert len(self.questions) == len(self.answers)
+
+        self.questions = []
+        self.answers = []
+        with open(self.datadir + '/merge.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                self.questions.append(row[0])
+                self.answers.append(row[1])
+        assert(len(questions) == len(answers))
+
+        #self.questions = self._read_questions()
+        #self.answers = self._read_answers()
+        #assert len(self.questions) == len(self.answers)
 
     def __iter__(self):
         return zip(self.questions, self.answers)
