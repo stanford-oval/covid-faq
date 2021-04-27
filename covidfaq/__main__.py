@@ -17,11 +17,11 @@
 
 import argparse
 
-from . import converter, run_interactive, run_server
+from . import converter, run_interactive, run_server, validate
 
 subcommands = {
     'converter': ("Convert dataset to another format", converter.parse_argv, converter.main),
-    #'validate': (converter.),
+    'validate': ("Run validation set", validate.parse_argv, validate.main),
     'run-interactive': ("Run FAQ interactively", run_interactive.parse_argv, run_interactive.main),
     'run-kfserver': ("Run KFServing API", run_server.parse_argv, run_server.main)
 }

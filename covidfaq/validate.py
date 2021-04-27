@@ -30,25 +30,29 @@ def parse_argv(parser):
                         help="Path to data directory")
     parser.add_argument('-f', '--faq-list', type=str, required=True,
                         help="File name of FAQ list")
+    parser.add_argument('-v', '--validation', type=str, required=True,
+                        help="File name of validation data")
     hparams.parse_argv(parser)
 
 
 def main(argv):
     dataset = Dataset(argv.data, argv.faq_list)
+    val_data = Dataset(argv.data, argv.validation)
     hp = hparams.argv_to_hparams(argv)
     model = Model(hp, dataset)
 
-    # interactive query
-    while True:
-        try:
-            query = input('> ')
-            answers = model([query])
-            ans, score = answers[0]
-            if ans is not None:
-                print(ans)
-                print('Score =', score)
-            else:
-                print("Sorry! We don't know the answer now. Please come back later.")
-                print('Score =', score)
-        except (EOFError, KeyboardInterrupt):
-            break
+    batch = [q for q, labels in val_data]
+    answers = model(batch)
+
+    correct = 0
+    for (ans, score), (q, labels) in zip(answers, val_data):
+        label_nums = [int(n) for n in labels.split(',')]
+        if ans is not None:
+            valid_answers = [ dataset[n - 2][1] for n in label_nums if n != -1 ]
+            if ans in valid_answers:
+                correct += 1
+        else:
+            if -1 in label_nums:
+                correct += 1
+
+    print("Accuracy =", correct / len(batch))

@@ -25,17 +25,21 @@ class Dataset:
     questions : List[str]
     answers : List[str]
 
-    def __init__(self, datadir):
+    def __init__(self, datadir, datafile):
         self.datadir = datadir
+        self.datafile = datafile
         self.questions, self.answers = self._read_faq_list()
 
     def __iter__(self):
         return zip(self.questions, self.answers)
 
+    def __getitem__(self, i):
+        return self.questions[i], self.answers[i]
+
     def _read_faq_list(self):
         questions = []
         answers = []
-        with open(self.datadir + '/faq_list.csv', newline='') as csvfile:
+        with open(self.datadir + '/' + self.datafile, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 questions.append(row['Question'])

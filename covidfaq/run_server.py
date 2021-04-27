@@ -26,7 +26,7 @@ class KFModelServer(kfserving.KFModel):
     def __init__(self, argv):
         super().__init__(argv.inference_name)
         self.argv = argv
-        self.data = Dataset(self.argv.data)
+        self.data = Dataset(self.argv.data, self.argv.faq_list)
         hp = hparams.argv_to_hparams(self.argv)
         self.model = Model(hp, self.data)
         self.ready = True
@@ -44,6 +44,8 @@ class KFModelServer(kfserving.KFModel):
 def parse_argv(parser):
     parser.add_argument('-d', '--data', type=str, required=True,
                         help="Path to data directory")
+    parser.add_argument('-f', '--faq-list', type=str, required=True,
+                        help="File name of FAQ list")
     parser.add_argument('-n', '--inference-name', type=str, required=True,
                         help="Inference name to use for KF Serving")
     hparams.parse_argv(parser)
