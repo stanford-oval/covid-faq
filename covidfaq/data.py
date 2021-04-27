@@ -27,40 +27,18 @@ class Dataset:
 
     def __init__(self, datadir):
         self.datadir = datadir
-
-        self.questions = []
-        self.answers = []
-        with open(self.datadir + '/merge.csv', newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                self.questions.append(row[0])
-                self.answers.append(row[1])
-        assert(len(self.questions) == len(self.answers))
-
-        #self.questions = self._read_questions()
-        #self.answers = self._read_answers()
-        #assert len(self.questions) == len(self.answers)
+        self.questions, self.answers = self._read_faq_list()
 
     def __iter__(self):
         return zip(self.questions, self.answers)
 
-    def _read_questions(self):
+    def _read_faq_list(self):
         questions = []
-        with open(self.datadir + '/questions', 'r') as fp:
-            for line in fp:
-                questions.append(line.strip())
-        return questions
-
-    def _read_answers(self):
         answers = []
-        answer = ''
-        with open(self.datadir + '/answers', 'r') as fp:
-            for line in fp:
-                if line == '---\n':
-                    answers.append(answer)
-                    answer = ''
-                    continue
-                answer += line
-            if answer:
-                answers.append(answer)
-        return answers
+        with open(self.datadir + '/faq_list.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                questions.append(row['Question'])
+                answers.append(row['Answer'])
+        assert(len(questions) == len(answers))
+        return questions, answers
