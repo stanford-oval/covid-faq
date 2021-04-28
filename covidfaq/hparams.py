@@ -29,7 +29,7 @@ def parse_argv(parser):
                         help="Nearest neighbor model")
     parser.add_argument('--binary-classifier-model', type=str, default='cross-encoder/stsb-TinyBERT-L-4',
                         help="Cross-encoder sentence similarity model")
-    parser.add_argument('--confidence', type=float, default=0.4, help="Confidence threshold")
+    parser.add_argument('--confidence', type=float, default=0.37, help="Confidence threshold")
     parser.add_argument('--top-k', type=int, default=5, help="Top-K hyperparameter for nearest neighbor")
 
 

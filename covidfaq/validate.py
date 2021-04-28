@@ -44,15 +44,25 @@ def main(argv):
     batch = [q for q, labels in val_data]
     answers = model(batch)
 
-    correct = 0
+    correct_all = 0
+    correct_in_domain = 0
+    total_in_domain = 0
+
     for (ans, score), (q, labels) in zip(answers, val_data):
         label_nums = [int(n) for n in labels.split(',')]
         if ans is not None:
             valid_answers = [ dataset[n - 2][1] for n in label_nums if n != -1 ]
             if ans in valid_answers:
-                correct += 1
+                correct_all += 1
         else:
             if -1 in label_nums:
-                correct += 1
+                correct_all += 1
 
-    print("Accuracy =", correct / len(batch))
+        if -1 not in label_nums:
+            valid_answers = [ dataset[n - 2][1] for n in label_nums ]
+            if ans in valid_answers:
+                correct_in_domain += 1
+            total_in_domain += 1
+
+    print("Accuracy (all) =", correct_all / len(batch))
+    print("Accuracy (in domain) =", correct_in_domain / total_in_domain)
