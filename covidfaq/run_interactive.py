@@ -42,7 +42,7 @@ def main(argv):
     while True:
         try:
             query = input('> ')
-            answers = model([query])
+            answers, topk_indices, scores = model([query])
             ans, score = answers[0]
             if ans is not None:
                 print(ans)

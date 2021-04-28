@@ -20,6 +20,8 @@ import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from sentence_transformers import CrossEncoder
 import configparser
+import tablib
+from tablib import Dataset
 
 from . import hparams
 from .data import Dataset
@@ -42,16 +44,20 @@ def main(argv):
     model = Model(hp, dataset)
 
     batch = [q for q, labels in val_data]
-    answers = model(batch)
+    answers, topk_indices, scores = model(batch)
 
     correct_all = 0
     correct_in_domain = 0
     total_in_domain = 0
 
-    for (ans, score), (q, labels) in zip(answers, val_data):
-        label_nums = [int(n) for n in labels.split(',')]
+    error_report = tablib.Dataset(headers=['kNN Recall@k', 'Classifier Topk', 'Correct'])
+
+    for i, ((ans, score), (q, labels)) in enumerate(zip(answers, val_data)):
+        #label_nums = [int(n) for n in labels.split(',')]
+        label_nums = [int(n) - 2 if int(n) != -1 else -1 for n in labels.split(',')] 
+
         if ans is not None:
-            valid_answers = [ dataset[n - 2][1] for n in label_nums if n != -1 ]
+            valid_answers = [ dataset[n][1] for n in label_nums if n != -1 ]
             if ans in valid_answers:
                 correct_all += 1
         else:
@@ -59,10 +65,23 @@ def main(argv):
                 correct_all += 1
 
         if -1 not in label_nums:
-            valid_answers = [ dataset[n - 2][1] for n in label_nums ]
+            valid_answers = [ dataset[n][1] for n in label_nums ]
+
+            retrieved = topk_indices[i].tolist()
+            relevant = list(set(retrieved) & set(label_nums))
+            recall_at_k = len(relevant) / len(retrieved)
+
             if ans in valid_answers:
                 correct_in_domain += 1
+                error_report.append((recall_at_k, scores[i], 1))
+            else:
+                error_report.append((recall_at_k, scores[i], 0))
             total_in_domain += 1
+        else:
+            error_report.append(('', '', ''))
 
     print("Accuracy (all) =", correct_all / len(batch))
     print("Accuracy (in domain) =", correct_in_domain / total_in_domain)
+
+    with open('data/error_report.xlsx', 'wb') as f:
+        f.write(error_report.export('xlsx'))
