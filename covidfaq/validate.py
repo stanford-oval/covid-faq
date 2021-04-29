@@ -48,6 +48,7 @@ def main(argv):
 
     correct_all = 0
     correct_in_domain = 0
+    correct_knn = 0
     total_in_domain = 0
 
     error_report = tablib.Dataset(headers=['kNN Precision@k', 'Classifier Topk', 'Correct'])
@@ -69,19 +70,22 @@ def main(argv):
 
             retrieved = topk_indices[i].tolist()
             relevant = list(set(retrieved) & set(label_nums))
-            recall_at_k = len(relevant) / len(retrieved)
+            precision_at_k = len(relevant) / len(retrieved)
+            if relevant:
+                correct_knn += 1
 
             if ans in valid_answers:
                 correct_in_domain += 1
-                error_report.append((recall_at_k, scores[i], 1))
+                error_report.append((precision_at_k, scores[i], 1))
             else:
-                error_report.append((recall_at_k, scores[i], 0))
+                error_report.append((precision_at_k, scores[i], 0))
             total_in_domain += 1
         else:
             error_report.append(('', '', ''))
 
-    print("Accuracy (all) =", correct_all / len(batch))
+    print("kNN Recall@K =", correct_knn / total_in_domain)
     print("Accuracy (in domain) =", correct_in_domain / total_in_domain)
+    print("Accuracy (all) =", correct_all / len(batch))
 
     with open('data/error_report.xlsx', 'wb') as f:
         f.write(error_report.export('xlsx'))
