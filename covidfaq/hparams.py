@@ -27,7 +27,7 @@ class HParams(NamedTuple):
 def parse_argv(parser):
     parser.add_argument('--knn-model', type=str, default='paraphrase-distilroberta-base-v1',
                         help="Nearest neighbor model")
-    parser.add_argument('--binary-classifier-model', type=str, default='cross-encoder/stsb-TinyBERT-L-4',
+    parser.add_argument('--binary-classifier-model', type=str, default='cross-encoder/stsb-roberta-large',
                         help="Cross-encoder sentence similarity model")
     parser.add_argument('--confidence', type=float, default=0.37, help="Confidence threshold")
     parser.add_argument('--top-k', type=int, default=5, help="Top-K hyperparameter for nearest neighbor")
