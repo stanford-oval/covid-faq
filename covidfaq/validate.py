@@ -50,7 +50,7 @@ def main(argv):
     correct_in_domain = 0
     total_in_domain = 0
 
-    error_report = tablib.Dataset(headers=['kNN Recall@k', 'Classifier Topk', 'Correct'])
+    error_report = tablib.Dataset(headers=['kNN Precision@k', 'Classifier Topk', 'Correct'])
 
     for i, ((ans, score), (q, labels)) in enumerate(zip(answers, val_data)):
         #label_nums = [int(n) for n in labels.split(',')]
