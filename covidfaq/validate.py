@@ -47,7 +47,7 @@ def main(argv):
     answers, topk_indices, scores = model(batch)
 
     correct_all = 0
-    correct_in_domain = 0
+    correct_classifier = 0
     correct_knn = 0
     total_in_domain = 0
 
@@ -75,7 +75,7 @@ def main(argv):
                 correct_knn += 1
 
             if ans in valid_answers:
-                correct_in_domain += 1
+                correct_classifier += 1
                 error_report.append((precision_at_k, scores[i], 1))
             else:
                 error_report.append((precision_at_k, scores[i], 0))
@@ -83,9 +83,13 @@ def main(argv):
         else:
             error_report.append(('', '', ''))
 
+    print("Percentage of in domain data =", total_in_domain / len(batch))
     print("kNN Recall@K =", correct_knn / total_in_domain)
-    print("Accuracy (in domain) =", correct_in_domain / total_in_domain)
-    print("Accuracy (all) =", correct_all / len(batch))
+    print("Classifier accuracy =", correct_classifier / correct_knn)
+
+    print("Accuracy (in domain) =", correct_classifier / total_in_domain)
+    print("Accuracy =", correct_classifier / len(batch))
+    #print("Accuracy (count ood as correct) =", correct_all / len(batch))
 
     with open('data/error_report.xlsx', 'wb') as f:
         f.write(error_report.export('xlsx'))
