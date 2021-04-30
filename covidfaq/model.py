@@ -71,4 +71,4 @@ class Model(torch.nn.Module):
                 ans = None
             answers.append(Answer(answer=ans, score=float(max_score)))
 
-        return answers, topk_indices, scores
+        return answers, topk_indices, scores, max_indices

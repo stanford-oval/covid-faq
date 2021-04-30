@@ -32,7 +32,7 @@ class KFModelServer(kfserving.KFModel):
         self.ready = True
 
     def predict(self, request):
-        answers, topk_indices, scores = self.model(request['instances'])
+        answers, topk_indices, scores, max_indices = self.model(request['instances'])
         return {
             "predictions": [
                 { "answer": x.answer, "score": x.score }

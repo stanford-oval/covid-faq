@@ -44,14 +44,14 @@ def main(argv):
     model = Model(hp, dataset)
 
     batch = [q for q, labels in val_data]
-    answers, topk_indices, scores = model(batch)
+    answers, topk_indices, scores, max_indices = model(batch)
 
     correct_all = 0
     correct_classifier = 0
     correct_knn = 0
     total_in_domain = 0
 
-    error_report = tablib.Dataset(headers=['kNN Precision@k', 'Classifier Topk', 'Correct'])
+    error_report = tablib.Dataset(headers=['User Query', 'Reference Question', 'kNN Precision@k', 'Classifier Topk', 'Correct'])
 
     for i, ((ans, score), (q, labels)) in enumerate(zip(answers, val_data)):
         #label_nums = [int(n) for n in labels.split(',')]
@@ -65,6 +65,8 @@ def main(argv):
             if -1 in label_nums:
                 correct_all += 1
 
+        ref_q = dataset[ topk_indices[i][max_indices[i]] ][0]
+
         if -1 not in label_nums:
             valid_answers = [ dataset[n][1] for n in label_nums ]
 
@@ -76,12 +78,12 @@ def main(argv):
 
             if ans in valid_answers:
                 correct_classifier += 1
-                error_report.append((precision_at_k, scores[i], 1))
+                error_report.append((q, ref_q, precision_at_k, scores[i], 1))
             else:
-                error_report.append((precision_at_k, scores[i], 0))
+                error_report.append((q, ref_q, precision_at_k, scores[i], 0))
             total_in_domain += 1
         else:
-            error_report.append(('', '', ''))
+            error_report.append((q, '', '', '', ''))
 
     print("Percentage of in domain data =", total_in_domain / len(batch))
     print("kNN Recall@K =", correct_knn / total_in_domain)
@@ -89,7 +91,10 @@ def main(argv):
 
     print("Accuracy (in domain) =", correct_classifier / total_in_domain)
     print("Accuracy =", correct_classifier / len(batch))
+
     #print("Accuracy (count ood as correct) =", correct_all / len(batch))
+
+    #print(str(argv.top_k) + ', ' + str(total_in_domain / len(batch)) + ', ' + str(correct_knn / total_in_domain) + ', ' + str(correct_classifier / correct_knn) + ', ' + str(correct_classifier / total_in_domain) + ', ' + str(correct_classifier / len(batch)))
 
     with open('data/error_report.xlsx', 'wb') as f:
         f.write(error_report.export('xlsx'))
