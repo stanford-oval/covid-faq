@@ -42,8 +42,9 @@ def main(argv):
     while True:
         try:
             query = input('> ')
-            answers, topk_indices, scores, max_indices = model([query])
-            ans, score = answers[0]
+            topk_indices, scores, max_indices = model([query])
+            ans = dataset.answers[ topk_indices[0][max_indices[0]] ]
+            score = scores[0][max_indices[0]]
             if ans is not None:
                 print(ans)
                 print('Score =', score)

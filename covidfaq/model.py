@@ -43,7 +43,7 @@ class Model(torch.nn.Module):
         # generate embeddings for questions
         self.embeddings_q = self.model.encode(self.dataset.questions)
 
-    def forward(self, query_batch: List[str]) -> List[Answer]:
+    def forward(self, query_batch: List[str]):# -> List[Answer]:
         embedding = self.model.encode(query_batch)
 
         cosine_scores = util.pytorch_cos_sim(embedding, self.embeddings_q)
@@ -59,16 +59,18 @@ class Model(torch.nn.Module):
         scores = np.reshape(scores, (len(query_batch), self.hparams.k))
         # print(scores)
 
-        max_scores = np.max(scores, axis=1)
+        #max_scores = np.max(scores, axis=1)
         max_indices = np.argmax(scores, axis=1)
-        answers = []
-        for i in range(len(query_batch)):
-            max_score = max_scores[i]
-            max_index = max_indices[i]
-            if max_score > self.hparams.confidence_level:
-                ans = self.dataset.answers[topk_indices[i][max_index]]
-            else:
-                ans = None
-            answers.append(Answer(answer=ans, score=float(max_score)))
+        #answers = []
+        #for i in range(len(query_batch)):
+        #    max_score = max_scores[i]
+        #    max_index = max_indices[i]
+        #    if max_score > self.hparams.confidence_level:
+        #        ans = self.dataset.answers[topk_indices[i][max_index]]
+        #    else:
+        #        ans = None
+        #    answers.append(Answer(answer=ans, score=float(max_score)))
 
-        return answers, topk_indices, scores, max_indices
+        return topk_indices, scores, max_indices
+
+        #return answers, topk_indices, scores, max_indices
