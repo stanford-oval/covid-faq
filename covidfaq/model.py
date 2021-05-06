@@ -37,27 +37,35 @@ class Model(torch.nn.Module):
         self.dataset = dataset
 
         # load model
-        self.model = SentenceTransformer(hparams.nearest_neighbor_model)
-        self.cross_encoder = CrossEncoder(hparams.binary_classifier_model)
+        self.model_qq = SentenceTransformer(hparams.nearest_neighbor_model_qq)
+        self.model_qa = SentenceTransformer(hparams.nearest_neighbor_model_qa)
+        self.cross_encoder_qq = CrossEncoder(hparams.binary_classifier_model_qq)
+        self.cross_encoder_qa = CrossEncoder(hparams.binary_classifier_model_qa)
 
-        # generate embeddings for questions
-        self.embeddings_q = self.model.encode(self.dataset.questions)
+        # generate embeddings for questions/answers
+        self.embeddings_q = self.model_qq.encode(self.dataset.questions)
+        self.embeddings_a = self.model_qa.encode(self.dataset.answers)
 
     def forward(self, query_batch: List[str]):# -> List[Answer]:
-        embedding = self.model.encode(query_batch)
+        embedding_qq = self.model_qq.encode(query_batch)
+        embedding_qa = self.model_qa.encode(query_batch)
 
-        cosine_scores = util.pytorch_cos_sim(embedding, self.embeddings_q)
+        cosine_scores_qq = util.pytorch_cos_sim(embedding_qq, self.embeddings_q)
+        cosine_scores_qa = util.pytorch_cos_sim(embedding_qa, self.embeddings_a)
+        cosine_scores = (1-self.hparams.weight_knn) * cosine_scores_qq + self.hparams.weight_knn * cosine_scores_qa
+
         topk_scores, topk_indices = torch.topk(cosine_scores, self.hparams.k)
-        # print(answers[topk_indices[0][0]])
-        # print(topk_scores[0][0])
 
-        batch = []
+        batch_qq = []
+        batch_qa = []
         for i, query in enumerate(query_batch):
             for j in range(self.hparams.k):
-                batch.append((query, self.dataset.questions[topk_indices[i][j]]))
-        scores = self.cross_encoder.predict(batch)
+                batch_qq.append((query, self.dataset.questions[topk_indices[i][j]]))
+                batch_qa.append((query, self.dataset.answers[topk_indices[i][j]]))
+        scores_qq = self.cross_encoder_qq.predict(batch_qq)
+        scores_qa = self.cross_encoder_qa.predict(batch_qa)
+        scores = (1-self.hparams.weight_binary_classifier) * scores_qq + self.hparams.weight_binary_classifier * scores_qa
         scores = np.reshape(scores, (len(query_batch), self.hparams.k))
-        # print(scores)
 
         #max_scores = np.max(scores, axis=1)
         max_indices = np.argmax(scores, axis=1)
