@@ -1,0 +1,16 @@
+branches:
+  except:
+  - "/^wip/"
+
+language: python
+python: 3.8
+cache:
+  pip: true
+  directories:
+  - $HOME/.cache/torch
+  - $HOME/.cache/huggingface
+
+install:
+- pip install -e .
+script:
+- ./test/integration.sh

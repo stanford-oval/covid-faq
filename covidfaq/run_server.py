@@ -35,7 +35,7 @@ class KFModelServer(kfserving.KFModel):
         topk_indices, scores, max_indices = self.model(request['instances'])
         return {
             "predictions": [
-                { "answer": self.data.answers[ topk_indices[i][max_indices[i]] ], "score": scores[i][max_indices[i]] }
+                { "answer": self.data.answers[ topk_indices[i][max_indices[i]] ], "score": float(scores[i][max_indices[i]]) }
                 for i in range(len(topk_indices))
             ]
         }
