@@ -31,7 +31,7 @@ class HParams(NamedTuple):
 def parse_argv(parser):
     parser.add_argument('--knn-model', type=str, default='paraphrase-distilroberta-base-v1',
                         help="Nearest neighbor model")
-    parser.add_argument('--knn-model-qa', type=str, default='msmarco-distilbert-base-v3',
+    parser.add_argument('--knn-model-qa', type=str, default='msmarco-roberta-base-v3',
                         help="Nearest neighbor model (question-answer)")
 
     parser.add_argument('--binary-classifier-model', type=str, default='cross-encoder/stsb-roberta-large',
