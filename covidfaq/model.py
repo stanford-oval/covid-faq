@@ -19,6 +19,9 @@ import torch
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from sentence_transformers import CrossEncoder
+from nltk.tokenize import word_tokenize
+from nltk.tokenize import sent_tokenize
+import gensim
 from typing import NamedTuple, Union, List
 
 from .data import Dataset
@@ -36,6 +39,16 @@ class Model(torch.nn.Module):
         self.hparams = hparams
         self.dataset = dataset
 
+        # pre-process data for tf-idf
+        questions = [[w.lower() for w in word_tokenize(question)]
+                                    for question in self.dataset.questions]
+        self.dictionary = gensim.corpora.Dictionary(questions)
+        corpus = [self.dictionary.doc2bow(question) for question in questions]
+
+        # tf-idf
+        self.tf_idf = gensim.models.TfidfModel(corpus)
+        self.sims = gensim.similarities.Similarity('workdir/', self.tf_idf[corpus], num_features=len(self.dictionary))
+
         # load model
         self.model_qq = SentenceTransformer(hparams.nearest_neighbor_model_qq)
         self.model_qa = SentenceTransformer(hparams.nearest_neighbor_model_qa)
@@ -47,14 +60,24 @@ class Model(torch.nn.Module):
         self.embeddings_a = self.model_qa.encode(self.dataset.answers)
 
     def forward(self, query_batch: List[str]):# -> List[Answer]:
+        # tf-idf
+        query_docs = [[w.lower() for w in word_tokenize(query)] for query in query_batch]
+        query_bows = [self.dictionary.doc2bow(query_doc) for query_doc in query_docs]
+        scores_tf_idf = self.sims[self.tf_idf[query_bows]]
+
+        # q-q, q-a models
         embedding_qq = self.model_qq.encode(query_batch)
         embedding_qa = self.model_qa.encode(query_batch)
 
         cosine_scores_qq = util.pytorch_cos_sim(embedding_qq, self.embeddings_q)
         cosine_scores_qa = util.pytorch_cos_sim(embedding_qa, self.embeddings_a)
-        cosine_scores = (1-self.hparams.weight_knn) * cosine_scores_qq + self.hparams.weight_knn * cosine_scores_qa
+        scores_qq = (cosine_scores_qq + 1) / 2
+        scores_qa = (cosine_scores_qa + 1) / 2
+        #cosine_scores = (1-self.hparams.weight_knn) * cosine_scores_qq + self.hparams.weight_knn * cosine_scores_qa
+        scores = (1-self.hparams.weight_knn) * scores_qq + self.hparams.weight_knn * scores_qa + self.hparams.weight_tf_idf * scores_tf_idf
 
-        topk_scores, topk_indices = torch.topk(cosine_scores, self.hparams.k)
+        #topk_scores, topk_indices = torch.topk(cosine_scores, self.hparams.k)
+        topk_scores, topk_indices = torch.topk(scores, self.hparams.k)
 
         batch_qq = []
         batch_qa = []

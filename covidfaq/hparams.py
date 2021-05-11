@@ -23,6 +23,7 @@ class HParams(NamedTuple):
 
     binary_classifier_model_qq : str
     binary_classifier_model_qa : str
+    weight_tf_idf: float
     weight_knn : float
     weight_binary_classifier : float
     confidence_level : float
@@ -39,6 +40,7 @@ def parse_argv(parser):
     parser.add_argument('--binary-classifier-model-qa', type=str, default='cross-encoder/ms-marco-MiniLM-L-12-v2',
                         help="Cross-encoder sentence similarity model (question-answer)")
 
+    parser.add_argument('--weight-tf-idf', type=float, default=0, help="Weight of TF-IDF")
     parser.add_argument('--weight-knn', type=float, default=0.15, help="Weight of KNNs")
     parser.add_argument('--weight-binary-classifier', type=float, default=0.05, help="Weight of binary classifiers")
 
@@ -52,6 +54,7 @@ def argv_to_hparams(argv) -> HParams:
                    k=argv.top_k,
                    binary_classifier_model_qq=argv.binary_classifier_model,
                    binary_classifier_model_qa=argv.binary_classifier_model_qa,
+                   weight_tf_idf=argv.weight_tf_idf,
                    weight_knn=argv.weight_knn,
                    weight_binary_classifier=argv.weight_binary_classifier,
                    confidence_level=argv.confidence)
