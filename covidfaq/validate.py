@@ -83,7 +83,7 @@ def main(argv):
     print("Accuracy (in domain) =", correct_classifier / total_in_domain)
     print("Accuracy =", correct_classifier / len(batch))
 
-    #print(str(argv.weight_knn) + ', ' + str(argv.weight_binary_classifier) + ', ' + str(total_in_domain / len(batch)) + ', ' + str(correct_knn / total_in_domain) + ', ' + str(correct_classifier / correct_knn) + ', ' + str(correct_classifier / total_in_domain) + ', ' + str(correct_classifier / len(batch)))
+    #print(str(argv.weight_tf_idf) + ', ' + str(argv.weight_knn) + ', ' + str(argv.weight_binary_classifier) + ', ' + str(total_in_domain / len(batch)) + ', ' + str(correct_knn / total_in_domain) + ', ' + str(correct_classifier / correct_knn) + ', ' + str(correct_classifier / total_in_domain) + ', ' + str(correct_classifier / len(batch)))
 
     with open('data/error_report.xlsx', 'wb') as f:
         f.write(error_report.export('xlsx'))

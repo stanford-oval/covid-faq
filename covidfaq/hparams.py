@@ -41,8 +41,8 @@ def parse_argv(parser):
                         help="Cross-encoder sentence similarity model (question-answer)")
 
     parser.add_argument('--weight-tf-idf', type=float, default=0, help="Weight of TF-IDF")
-    parser.add_argument('--weight-knn', type=float, default=0.15, help="Weight of KNNs")
-    parser.add_argument('--weight-binary-classifier', type=float, default=0.05, help="Weight of binary classifiers")
+    parser.add_argument('--weight-knn', type=float, default=0.03, help="Weight of KNNs")
+    parser.add_argument('--weight-binary-classifier', type=float, default=0.02, help="Weight of binary classifiers")
 
     parser.add_argument('--confidence', type=float, default=0.37, help="Confidence threshold")
     parser.add_argument('--top-k', type=int, default=5, help="Top-K hyperparameter for nearest neighbor")

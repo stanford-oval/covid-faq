@@ -74,7 +74,8 @@ class Model(torch.nn.Module):
         scores_qq = (cosine_scores_qq + 1) / 2
         scores_qa = (cosine_scores_qa + 1) / 2
         #cosine_scores = (1-self.hparams.weight_knn) * cosine_scores_qq + self.hparams.weight_knn * cosine_scores_qa
-        scores = (1-self.hparams.weight_knn) * scores_qq + self.hparams.weight_knn * scores_qa + self.hparams.weight_tf_idf * scores_tf_idf
+        scores = (1-self.hparams.weight_knn) * scores_qq + self.hparams.weight_knn * scores_qa
+        scores = (1-self.hparams.weight_tf_idf) * scores + self.hparams.weight_tf_idf * scores_tf_idf
 
         #topk_scores, topk_indices = torch.topk(cosine_scores, self.hparams.k)
         topk_scores, topk_indices = torch.topk(scores, self.hparams.k)
