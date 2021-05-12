@@ -12,6 +12,6 @@ cache:
 
 install:
 - pip install -e .
-- python -m nltk.downloader all
+- python -m nltk.downloader punkt
 script:
 - ./test/integration.sh
