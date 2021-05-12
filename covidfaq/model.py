@@ -47,7 +47,7 @@ class Model(torch.nn.Module):
 
         # tf-idf
         self.tf_idf = gensim.models.TfidfModel(corpus)
-        self.sims = gensim.similarities.Similarity('workdir/', self.tf_idf[corpus], num_features=len(self.dictionary))
+        self.sims = gensim.similarities.MatrixSimilarity(self.tf_idf[corpus], num_features=len(self.dictionary))
 
         # load model
         self.model_qq = SentenceTransformer(hparams.nearest_neighbor_model_qq)
