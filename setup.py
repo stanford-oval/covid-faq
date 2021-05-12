@@ -40,6 +40,8 @@ setuptools.setup(
         'sentence-transformers',
         'tablib',
         'kfserving',
-        'smart_open[s3]'
+        'smart_open[s3]',
+        'nltk',
+        'gensim'
     ]
 )
