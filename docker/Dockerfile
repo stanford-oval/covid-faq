@@ -19,4 +19,5 @@ RUN useradd -ms /bin/bash covid-faq
 USER covid-faq
 
 WORKDIR /home/covid-faq
+RUN python -m nltk.downloader all
 ENTRYPOINT ["covidfaq"]
