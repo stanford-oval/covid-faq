@@ -26,7 +26,7 @@ trap on_error ERR INT TERM
 oldpwd=`pwd`
 cd $workdir
 
-covidfaq run-kfserver -n covid-faq -d $srcdir/data -f faq_list_clean.csv &
+covidfaq run-kfserver -n covid-faq -d $srcdir/data/clean -f faq_db.csv &
 serverpid=$!
 
 
